@@ -11,6 +11,7 @@ import os
 import sys
 dotenv.load_dotenv()
 
+
 def auth(use_proxy=False):
     if use_proxy:
         os.environ['http_proxy'] = 'http://127.0.0.1:2080'
@@ -23,9 +24,11 @@ def auth(use_proxy=False):
     auth.set_access_token(os.environ["T3"], os.environ["T4"])
     return tweepy.API(auth, wait_on_rate_limit=True)
 
+
 def create_dir(folder_path: str):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
+
 
 def retry(times: int):
     """
@@ -52,11 +55,13 @@ def retry(times: int):
         return newfn
     return decorator
 
+
 @retry(3)
 def download_file(url: str, filename: str) -> bool:
     print(colored("Downloading ", "yellow") + url)
     with open(filename, 'wb') as f:
         f.write(requests.get(url).content)
+
 
 def archive_user(username, api):
 
@@ -92,7 +97,6 @@ def archive_user(username, api):
 
     # DOWNLOAD IMAGES
 
-
     for tweet in all_tweets:
         if 'media' in tweet.entities:
             for image in tweet.entities['media']:
@@ -120,14 +124,16 @@ def archive_user(username, api):
                     max_bitrate_url = variant['url']
             if max_bitrate_url is not None:
                 filename = filename_patt.search(max_bitrate_url).group(0)
-                print(f"At bitrate {max_bitrate} as {filename} in tweet {tweet.id},")
+                print(
+                    f"At bitrate {max_bitrate} as {filename} in tweet {tweet.id},")
                 try:
                     download_file(max_bitrate_url, f"{videos_dir}/{filename}")
                 except:
                     print(colored(f"Could not download {filename}."))
 
+
 api = auth(use_proxy=False)
 
 for user in sys.argv[1:]:
+    print("Archiving", user + "…")
     archive_user(user, api)
-
