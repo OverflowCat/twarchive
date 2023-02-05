@@ -10,7 +10,15 @@ import codecs
 import re
 import os
 import sys
+import pickledb
+import time
+from utils import retry
+
 dotenv.load_dotenv()
+
+# key: user_id_str str -> val: timestamp int
+saved_db = pickledb.load('saved.db', False)
+# names_db = pickledb.load('names.db', False) # key: user_id_str str -> val: screename str
 
 
 def auth(use_proxy=False):
@@ -29,39 +37,19 @@ def auth(use_proxy=False):
 api = auth(use_proxy=False)
 
 
+@retry(5)
 def create_dir(folder_path: str):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
 
-def retry(times: int):
-    """
-    Retry Decorator
-    Retries the wrapped function/method `times` times if the exceptions listed
-    in ``exceptions`` are thrown
-    :param times: The number of times to repeat the wrapped function/method
-    :type times: Int
-    """
-    def decorator(func):
-        def newfn(*args, **kwargs):
-            attempt = 0
-            while attempt < times:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    print(colored(str(e), 'red'))
-                    print(
-                        'Exception thrown when attempting to run %s, attempt '
-                        '%d of %d' % (func, attempt, times)
-                    )
-                    attempt += 1
-            return func(*args, **kwargs)
-        return newfn
-    return decorator
-
-
 @retry(3)
-def download_file(url: str, filename: str) -> bool:
+def download_file(url: str, filename: str) -> None:
+    if os.path.exists(filename):
+        print(colored(f"{filename} exists, skipping…",
+              "blue", attrs=['bold']) + url)
+        return
+
     print(colored("Downloading ", "yellow") + url)
     with open(filename, 'wb') as f:
         f.write(requests.get(url).content)
@@ -77,9 +65,15 @@ def get_following_ids_from_archive(filename: str) -> List[int]:
 
 
 def archive_user(user):
+    if isinstance(user, int):
+        v = saved_db.get(str(user))
+        if v:
+            print(
+                colored(f"User has been saved at {v}.", "blue", attrs=['bold'])
+            )
+            return
 
     username = str(user) if isinstance(user, int) else user
-
     print(
         colored("Archiving", 'green'),
         colored(username, 'green', attrs=['bold', 'blink']),
@@ -166,11 +160,17 @@ def archive_user(user):
                 except:
                     print(colored(f"Could not download {filename}."))
 
+    # ADD SAVED USER_ID_STR TO SAVED_DB
+
+    saved_db.set(str(user), int(time.time()))
+    saved_db.dump()
+
 
 def parse_args(arguments):
     if len(arguments) == 0 or arguments[0] == "following":
         user_ids = get_following_ids_from_archive('following.js')
         for user in user_ids:
+            print(user)
             archive_user(user)
     else:
         for user in arguments:

@@ -30,6 +30,11 @@ requires_python = ">=3.6"
 summary = "A generic, spec-compliant, thorough implementation of the OAuth request-signing logic"
 
 [[package]]
+name = "pickledb"
+version = "0.9.2"
+summary = "A lightweight and simple database using json."
+
+[[package]]
 name = "python-dotenv"
 version = "0.21.1"
 requires_python = ">=3.7"
@@ -82,7 +87,7 @@ summary = "HTTP library with thread-safe connection pooling, file post, and more
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:a1c047b5faac0198b3b8a35cdd32fe87f426d54edfd2c54d4b6c55523cbf4b42"
+content_hash = "sha256:f9ccdc5ff718a35fd36131fa4f78a2a2370e78292165ed9c5822949fbaace9cf"
 
 [metadata.files]
 "certifi 2022.12.7" = [
@@ -189,6 +194,9 @@ content_hash = "sha256:a1c047b5faac0198b3b8a35cdd32fe87f426d54edfd2c54d4b6c55523
 "oauthlib 3.2.2" = [
     {url = "https://files.pythonhosted.org/packages/6d/fa/fbf4001037904031639e6bfbfc02badfc7e12f137a8afa254df6c4c8a670/oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918"},
     {url = "https://files.pythonhosted.org/packages/7e/80/cab10959dc1faead58dc8384a781dfbf93cb4d33d50988f7a69f1b7c9bbe/oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca"},
+]
+"pickledb 0.9.2" = [
+    {url = "https://files.pythonhosted.org/packages/29/7f/ae7a32f125c6165941ed5c547bff7e6fbd385658fc6e490c2ee73c78c4c2/pickleDB-0.9.2.tar.gz", hash = "sha256:ec6973e65d7d112849e78ce522840aa908efb2523470bb8ce5c7942310192240"},
 ]
 "python-dotenv 0.21.1" = [
     {url = "https://files.pythonhosted.org/packages/64/62/f19d1e9023aacb47241de3ab5a5d5fedf32c78a71a9e365bb2153378c141/python_dotenv-0.21.1-py3-none-any.whl", hash = "sha256:41e12e0318bebc859fcc4d97d4db8d20ad21721a6aa5047dd59f090391cb549a"},

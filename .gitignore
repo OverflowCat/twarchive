@@ -1,6 +1,8 @@
 .env
 __pypackages__
 
+*.db
+
 *.png
 *.jpg
 *.jpeg
