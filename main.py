@@ -1,4 +1,5 @@
 from itertools import count
+from typing import List
 import tweepy
 import os
 import dotenv
@@ -23,6 +24,9 @@ def auth(use_proxy=False):
     auth = tweepy.OAuthHandler(os.environ["T1"], os.environ["T2"])
     auth.set_access_token(os.environ["T3"], os.environ["T4"])
     return tweepy.API(auth, wait_on_rate_limit=True)
+
+
+api = auth(use_proxy=False)
 
 
 def create_dir(folder_path: str):
@@ -63,8 +67,26 @@ def download_file(url: str, filename: str) -> bool:
         f.write(requests.get(url).content)
 
 
-def archive_user(username, api):
-    archive_dir = "./archive"
+def get_following_ids_from_archive(filename: str) -> List[int]:
+    with open(filename, 'r') as file:
+        content = file.read()
+        start_index = content.index('[')
+        data = json.loads(content[start_index:])
+
+    return [int(d['following']['accountId']) for d in data]
+
+
+def archive_user(user):
+
+    username = str(user) if isinstance(user, int) else user
+
+    print(
+        colored("Archiving", 'green'),
+        colored(username, 'green', attrs=['bold', 'blink']),
+        "…"
+    )
+
+    archive_dir = "../twassets"
     create_dir(archive_dir)
     user_dir = archive_dir + '/' + username
     create_dir(user_dir)
@@ -74,23 +96,34 @@ def archive_user(username, api):
     create_dir(videos_dir)
 
     all_tweets = []
-    newest_id = 1621183597639999999
+    newest_id = 1622294944739877777
     while len(all_tweets) < 114514:
-        tweets = api.user_timeline(
-            screen_name=username,
-            # 200 is the maximum allowed count
-            count=200,
-            include_rts=True,
-            max_id=newest_id - 1,
-            # Necessary to keep full_text
-            # otherwise only the first 140 words are extracted
-            tweet_mode='extended'
-        )
+        tweets = None
+        if user == username:
+            tweets = api.user_timeline(
+                screen_name=username,
+                # 200 is the maximum allowed count
+                count=200,
+                include_rts=True,
+                max_id=newest_id - 1,
+                # Necessary to keep full_text
+                # otherwise only the first 140 words are extracted
+                tweet_mode='extended'
+            )
+        else:
+            tweets = api.user_timeline(
+                user_id=user,
+                count=200,
+                include_rts=True,
+                max_id=newest_id - 1,
+                tweet_mode='extended'
+            )
         if len(tweets) == 0:
+            # print(colored('No more tweets found.', 'light_red', attrs=['bold']))
             break
         newest_id = tweets[-1].id
         all_tweets.extend(tweets)
-        print('N of tweets downloaded till now {}'.format(len(all_tweets)))
+        print('{} tweets have been downloaded…'.format(len(all_tweets)))
 
     # ARCHIVE TWEETS JSON
 
@@ -134,8 +167,18 @@ def archive_user(username, api):
                     print(colored(f"Could not download {filename}."))
 
 
-api = auth(use_proxy=False)
+def parse_args(arguments):
+    if len(arguments) == 0 or arguments[0] == "following":
+        user_ids = get_following_ids_from_archive('following.js')
+        for user in user_ids:
+            archive_user(user)
+    else:
+        for user in arguments:
+            archive_user(user)
 
-for user in sys.argv[1:]:
-    print("Archiving", user + "…")
-    archive_user(user, api)
+
+def main():
+    parse_args(sys.argv[1:])
+
+
+main()
