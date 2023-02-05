@@ -64,11 +64,13 @@ def download_file(url: str, filename: str) -> bool:
 
 
 def archive_user(username, api):
-
-    create_dir("./" + username)
-    images_dir = f"./{username}/images"
+    archive_dir = "./archive"
+    create_dir(archive_dir)
+    user_dir = archive_dir + '/' + username
+    create_dir(user_dir)
+    images_dir = f"{user_dir}/images"
     create_dir(images_dir)
-    videos_dir = f"./{username}/videos"
+    videos_dir = f"{user_dir}/videos"
     create_dir(videos_dir)
 
     all_tweets = []
@@ -92,7 +94,8 @@ def archive_user(username, api):
 
     # ARCHIVE TWEETS JSON
 
-    with codecs.open('all_tweets.json', 'w', encoding='utf-8') as f:
+    json_path = user_dir + '/' + 'tweets.json'
+    with codecs.open(json_path, 'w', encoding='utf-8') as f:
         json.dump([tweet._json for tweet in all_tweets], f, ensure_ascii=False)
 
     # DOWNLOAD IMAGES
@@ -100,7 +103,6 @@ def archive_user(username, api):
     for tweet in all_tweets:
         if 'media' in tweet.entities:
             for image in tweet.entities['media']:
-                print(image)
                 filename = images_dir + "/" + image['media_url'].split('/')[-1]
                 try:
                     download_file(image['media_url'], filename)

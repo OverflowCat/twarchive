@@ -1,4 +1,6 @@
 .env
+__pypackages__
+
 *.png
 *.jpg
 *.jpeg
@@ -6,3 +8,5 @@
 *.mp4
 *.webm
 *.json
+
+/archive/*

@@ -1,0 +1,17 @@
+[tool.pdm]
+
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "OverflowCat", email = "overflowcat@gmail.com"},
+]
+dependencies = [
+    "colorterm>=0.3",
+    "tweepy>=4.12.1",
+    "python-dotenv>=0.21.1",
+    "termcolor>=2.2.0",
+]
+requires-python = ">=3.10"
+license = {text = "MIT"}
