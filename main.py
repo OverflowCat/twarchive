@@ -19,7 +19,7 @@ dotenv.load_dotenv()
 # key: user_id_str str -> val: timestamp int
 saved_db = pickledb.load('saved.db', False)
 # names_db = pickledb.load('names.db', False) # key: user_id_str str -> val: screename str
-
+print(colored(f"{saved_db.totalkeys()} users have been saved.", "magenta", "on_black", ["bold"]))
 
 def auth(use_proxy=False):
     if use_proxy:
@@ -61,15 +61,18 @@ def get_following_ids_from_archive(filename: str) -> List[int]:
         start_index = content.index('[')
         data = json.loads(content[start_index:])
 
-    return [int(d['following']['accountId']) for d in data]
+    res = [int(d['following']['accountId']) for d in data]
+    return res[res.index(944866598988300288):] # 从该用户之后开始，不包括该用户
 
 
 def archive_user(user):
+    print(colored("============================", "dark_grey"))
     if isinstance(user, int):
         v = saved_db.get(str(user))
         if v:
             print(
-                colored(f"User has been saved at {v}.", "blue", attrs=['bold'])
+                colored(
+                    f"User has been saved at {v}, skipped.", "blue", "on_white", ['bold'])
             )
             return
 
@@ -80,7 +83,7 @@ def archive_user(user):
         "…"
     )
 
-    archive_dir = "../twassets"
+    archive_dir = "../twasl"
     create_dir(archive_dir)
     user_dir = archive_dir + '/' + username
     create_dir(user_dir)
@@ -91,27 +94,33 @@ def archive_user(user):
 
     all_tweets = []
     newest_id = 1622294944739877777
+    newest_id = 1625808601414599333
     while len(all_tweets) < 114514:
         tweets = None
-        if user == username:
-            tweets = api.user_timeline(
-                screen_name=username,
-                # 200 is the maximum allowed count
-                count=200,
-                include_rts=True,
-                max_id=newest_id - 1,
-                # Necessary to keep full_text
-                # otherwise only the first 140 words are extracted
-                tweet_mode='extended'
-            )
-        else:
-            tweets = api.user_timeline(
-                user_id=user,
-                count=200,
-                include_rts=True,
-                max_id=newest_id - 1,
-                tweet_mode='extended'
-            )
+        try:
+            if user == username:
+                tweets = api.user_timeline(
+                    screen_name=username,
+                    # 200 is the maximum allowed count
+                    count=200,
+                    include_rts=True,
+                    max_id=newest_id - 1,
+                    # Necessary to keep full_text
+                    # otherwise only the first 140 words are extracted
+                    tweet_mode='extended'
+                )
+            else:
+                tweets = api.user_timeline(
+                    user_id=user,
+                    count=200,
+                    include_rts=True,
+                    max_id=newest_id - 1,
+                    tweet_mode='extended'
+                )
+        except tweepy.Unauthorized as e:
+            print(e)
+            saved_db.set(str(user), -401)
+            return
         if len(tweets) == 0:
             # print(colored('No more tweets found.', 'light_red', attrs=['bold']))
             break

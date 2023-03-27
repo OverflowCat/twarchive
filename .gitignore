@@ -1,6 +1,7 @@
 .env
+.env.old
 __pypackages__
-
+*.pyc
 *.db
 
 *.png

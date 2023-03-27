@@ -1,8 +1,8 @@
 [tool.pdm]
 
 [project]
-name = ""
-version = ""
+name = "twarchive"
+version = "2.0"
 description = ""
 authors = [
     {name = "OverflowCat", email = "overflowcat@gmail.com"},
