@@ -62,7 +62,10 @@ def get_following_ids_from_archive(filename: str) -> List[int]:
         data = json.loads(content[start_index:])
 
     res = [int(d['following']['accountId']) for d in data]
-    return res[res.index(944866598988300288):] # 从该用户之后开始，不包括该用户
+    index = res.index(322420627)
+    print(f"Found at index {index}.")
+    sleep(5)
+    return res[index:] # 从该用户之后开始，不包括该用户
 
 
 def archive_user(user):
@@ -141,6 +144,7 @@ def archive_user(user):
             for image in tweet.entities['media']:
                 filename = images_dir + "/" + image['media_url'].split('/')[-1]
                 try:
+                    sleep(0.5)
                     download_file(image['media_url'], filename)
                 except:
                     print(colored(f"Could not download {filename}."))
